@@ -7,6 +7,9 @@ import FormControl from '@material-ui/core/FormControl';
 import Button from '@material-ui/core/Button';
 import SendIcon from '@material-ui/icons/Send';
 import axios from './axios'
+import DoneOutlineIcon from '@material-ui/icons/DoneOutline';
+import ClearIcon from '@material-ui/icons/Clear';
+import { IconButton } from '@material-ui/core';
 
 const MainBody = () => {
 
@@ -21,8 +24,19 @@ const MainBody = () => {
         axios.get("/todos")
         .then(res=>{
             setTodos(res.data)
+            console.log("get data")
+            console.log(res.data)
         })
-    }, [todos])
+    },[todos])
+
+    const getData =()=>{
+        axios.get("/todos")
+        .then(res=>{
+            setTodos(res.data)
+            console.log("get data")
+            console.log(res.data)
+        })
+    }
 
     const handleSubmit =(e)=>{
         axios.post('todos/new', {
@@ -30,8 +44,9 @@ const MainBody = () => {
             description: description,
             time: time,
             date: date,
-            importance: importance
-        })
+            importance: importance,
+            finish: false
+        })  
         .then(()=>{
             setEvent('')
             setDescription('')
@@ -39,6 +54,28 @@ const MainBody = () => {
             setDate('')
             setImportance('')
         })
+    }
+
+    const handleClick = async (e) =>{
+        if(e.target.innerText === "NOT FINISHED"){
+            await axios.patch('todos/update', {
+                id: e.target.parentNode.parentNode.getAttribute('todo_id'),
+                finish: true
+            }).then(getData())
+        }else{
+            await axios.patch('todos/update', {
+                id: e.target.parentNode.parentNode.getAttribute('todo_id'),
+                finish: false
+            }).then(getData())
+        }
+        
+    }
+
+    const handleDelete = async (e) =>{
+        const todoid = e.target.getAttribute('todo_id')
+        console.log(todoid)
+        await axios.delete('todos/delete', {data:{id: todoid} }, {withCredentials:true})
+            .then((res)=> console.log('deleted'))
     }
 
     return (
@@ -71,12 +108,25 @@ const MainBody = () => {
                 {
                     todos.map(todo=>(
                         <div class="todo-card">
-                            <div className= {`card-label ${todo.importance}`}></div>
-                            <div className="card-body">
+                            <div className= {`card-label ${todo.importance}`}>
+                                    <ClearIcon style={{color:"white", cursor:"pointer"}}  todo_id={`${todo._id}`} onClick={handleDelete}/>                            
+                                </div>
+                            <div className="card-body" todo_id={todo._id}>
                                 <h3>{todo.event}</h3>
                                 <p>{todo.description}</p>
                                 <p>{`Date: ${todo.date} `}</p>
-                                <p>{`Time: ${todo.time} `}</p>                    
+                                <p>{`Time: ${todo.time} `}</p>  
+                                <Button
+                                    variant="contained"
+                                    color={todo.finish ? "primary" : "default"}
+                                    endIcon={todo.finish ? <DoneOutlineIcon/> :""}
+                                    style={{margin:"15px"}}
+                                    type="submit"
+                                    onClick={handleClick}
+                                    
+                                >
+                                    {todo.finish ? "Completed ": "Not finished"}
+                                </Button>                   
                             </div>
                         </div>
                     ))

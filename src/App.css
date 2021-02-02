@@ -72,15 +72,18 @@
 .todo-card {
   box-shadow: 2px 2px 4px grey;
   margin: 20px;
-  width: 200px;
-  height: 200px;
+
+  width: auto;
+  height: 220px;
   background-color: white;
 }
 
 .card-label {
   width: 100%;
-  height: 10%;
+  height: 11%;
   background-color: lightblue;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .card-body {
@@ -89,6 +92,12 @@
   justify-content: space-around;
   align-items: center;
   height: 90%;
+  padding: 20px;
+}
+
+.card-body > h3,
+.card-body > p {
+  padding: 5px;
 }
 
 .normal {
